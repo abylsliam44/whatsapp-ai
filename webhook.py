@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Request, status
 from fastapi.responses import JSONResponse
 import os
+from dotenv import load_dotenv
+load_dotenv()
 import logging
 from gpt import ask_gpt
 from whatsapp import send_whatsapp_message
