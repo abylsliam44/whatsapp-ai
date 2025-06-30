@@ -1,9 +1,9 @@
 import os
-import openai
 from dotenv import load_dotenv
+from openai import AsyncOpenAI
 
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 system_prompt = (
     "Ты — интеллектуальный ассистент Caravan of Knowledge. "
@@ -22,7 +22,7 @@ async def ask_gpt(text: str, model: str = "gpt-3.5-turbo") -> str:
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": text}
     ]
-    response = await openai.ChatCompletion.acreate(
+    response = await client.chat.completions.create(
         model=model,
         messages=messages,
         max_tokens=500,

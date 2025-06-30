@@ -1,5 +1,5 @@
-import openai
 import os
+from openai import AsyncOpenAI
 from datetime import datetime
 from typing import Dict, List, Optional
 from loguru import logger
@@ -9,33 +9,27 @@ class OpenAIService:
         self.api_key = os.getenv("OPENAI_API_KEY")
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY not found in environment variables")
-        
-        openai.api_key = self.api_key
         self.model = "gpt-3.5-turbo"
+        self.client = AsyncOpenAI(api_key=self.api_key)
     
     async def generate_response(self, messages: List[Dict[str, str]], max_tokens: int = 500, temperature: float = 0.7) -> Dict:
         """
         Генерирует ответ от OpenAI API
         """
         try:
-            response = openai.ChatCompletion.create(
+            response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
                 max_tokens=max_tokens,
                 temperature=temperature
             )
-            
             return {
                 "content": response.choices[0].message.content,
                 "tokens_used": response.usage.total_tokens if hasattr(response, 'usage') else None,
                 "model": self.model
             }
-            
-        except openai.error.OpenAIError as e:
-            logger.error(f"OpenAI API error: {str(e)}")
-            raise e
         except Exception as e:
-            logger.error(f"Unexpected error in OpenAI service: {str(e)}")
+            logger.error(f"OpenAI API error: {str(e)}")
             raise e
 
 class SessionService:
